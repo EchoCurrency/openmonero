@@ -85,6 +85,9 @@ public:
     import_wallet_request(const shared_ptr< Session > session, const Bytes & body);
 
     void
+    import_wallet_last(const shared_ptr< Session > session, const Bytes & body);
+
+    void
     get_version(const shared_ptr< Session > session, const Bytes & body);
 
     shared_ptr<Resource>

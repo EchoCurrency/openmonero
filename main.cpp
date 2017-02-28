@@ -185,6 +185,10 @@ auto import_wallet_request = your_xmr.make_resource(
         &xmreg::YourMoneroRequests::import_wallet_request,
         "/import_wallet_request");
 
+auto import_wallet_last = your_xmr.make_resource(
+        &xmreg::YourMoneroRequests::import_wallet_last,
+        "/import_wallet_last");
+
 auto get_version           = your_xmr.make_resource(
         &xmreg::YourMoneroRequests::get_version,
         "/get_version");
@@ -200,6 +204,7 @@ service.publish(get_unspent_outs);
 service.publish(get_random_outs);
 service.publish(submit_raw_tx);
 service.publish(import_wallet_request);
+service.publish(import_wallet_last);
 service.publish(get_version);
 
 auto settings = make_shared<Settings>( );

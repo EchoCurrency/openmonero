@@ -129,7 +129,8 @@ YourMoneroRequests::get_address_txs(const shared_ptr< Session > session, const B
     xmreg::XmrAccount acc;
 
     // select this account if its existing one
-    if (xmr_accounts->select(xmr_address, acc)) {
+    if (xmr_accounts->select(xmr_address, acc))
+    {
 
         uint64_t total_received {0};
         uint64_t total_received_unlocked {0};
@@ -731,6 +732,65 @@ YourMoneroRequests::import_wallet_request(const shared_ptr< Session > session, c
             j_response["payment_address"]   = xmr_payment.payment_address;
             j_response["status"]            = "Payment not yet received";
         }
+    }
+
+    string response_body = j_response.dump();
+
+    auto response_headers = make_headers({{ "Content-Length", to_string(response_body.size())}});
+
+    session->close( OK, response_body, response_headers);
+}
+
+
+void
+YourMoneroRequests::import_wallet_last(const shared_ptr< Session > session, const Bytes & body)
+{
+    json j_request = body_to_json(body);
+
+    string xmr_address       = j_request["address"];
+    uint64_t no_last_blocks  = j_request["no_blocks"];
+
+    json j_response;
+
+    // a placeholder for exciting or new account data
+    xmreg::XmrAccount acc;
+
+    // select this account if its existing one
+    if (xmr_accounts->select(xmr_address, acc))
+    {
+        XmrAccount updated_acc = acc;
+
+        // we subtract from start_height, i.e., account creation block
+        // this way multiple invocation of this function, will never
+        // go more back than needed.
+        updated_acc.scanned_block_height = (acc.start_height - no_last_blocks > 0
+                                           ? acc.start_height - no_last_blocks
+                                           : 0);
+
+        if (xmr_accounts->update(acc, updated_acc))
+        {
+            // iff success, set acc to updated_acc;
+            cout << "start_height updated from " << acc.scanned_block_height
+                 << " to " <<  updated_acc.scanned_block_height
+                 << endl;
+
+            j_response["status"] = "success";
+
+            j_response["status"] = "error";
+            j_response["error"]  = "Setting new start_height failed";
+
+            //todo notify search thread about this change.
+        }
+        else
+        {
+            j_response["status"] = "error";
+            j_response["error"]  = "Setting new start_height failed";
+        }
+    }
+    else
+    {
+        j_response["status"] = "error";
+        j_response["error"]  = "Your account not found in database";
     }
 
     string response_body = j_response.dump();
