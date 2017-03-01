@@ -38,12 +38,14 @@ thinwalletCtrls.controller("ImportWalletLastWeekCtrl", function($scope, $locatio
             no_blocks: blocks_no
         }).success(function(data) {
 
+            $scope.error = "";
+
             if (data.status === "error")
             {
                 $scope.error = "Something unexpected occurred when importing wallet: " + data.error;
                 return;
             }
-            ModalService.hide('import-wallet');
+            ModalService.hide('imported-account');
 
         }).error(function(err) {
             $scope.error = err.Error || err || "An unexpected server error occurred";

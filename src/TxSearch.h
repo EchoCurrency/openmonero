@@ -80,9 +80,6 @@ public:
     ~TxSearch();
 
     void
-    set_searched_blk_no(uint64_t new_value);
-
-    void
     ping();
 
     bool
@@ -121,6 +118,9 @@ public:
 
     pair<account_public_address, secret_key>
     get_xmr_address_viewkey() const;
+
+    void
+    set_searched_blk_no(uint64_t new_value);
 
     static void
     set_search_thread_life(uint64_t life_seconds);

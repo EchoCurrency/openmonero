@@ -774,17 +774,22 @@ YourMoneroRequests::import_wallet_last(const shared_ptr< Session > session, cons
                  << " to " <<  updated_acc.scanned_block_height
                  << endl;
 
-            j_response["status"] = "success";
 
-            j_response["status"] = "error";
-            j_response["error"]  = "Setting new start_height failed";
-
-            //todo notify search thread about this change.
+            if (CurrentBlockchainStatus::set_new_searched_blk_no(
+                    acc.address, updated_acc.scanned_block_height))
+            {
+                j_response["status"] = "success";
+            }
+            else
+            {
+                j_response["status"] = "error";
+                j_response["error"]  = "Setting new searched_blk_no failed";
+            }
         }
         else
         {
             j_response["status"] = "error";
-            j_response["error"]  = "Setting new start_height failed";
+            j_response["error"]  = "Updating your account with new scanned_block_height failed";
         }
     }
     else
@@ -795,7 +800,7 @@ YourMoneroRequests::import_wallet_last(const shared_ptr< Session > session, cons
 
     string response_body = j_response.dump();
 
-    auto response_headers = make_headers({{ "Content-Length", to_string(response_body.size())}});
+    auto response_headers = make_headers({{"Content-Length", to_string(response_body.size())}});
 
     session->close( OK, response_body, response_headers);
 }
