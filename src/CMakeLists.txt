@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(myxrm)
+project(my-echo-cyrrency)
 
 set(SOURCE_FILES
 		MicroCore.cpp
